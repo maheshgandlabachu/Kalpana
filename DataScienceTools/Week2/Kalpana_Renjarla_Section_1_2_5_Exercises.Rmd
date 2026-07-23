@@ -1,0 +1,185 @@
+---
+title: "Section 1.2.5 Exercises 3, 4, and 6"
+author: "Kalpana Renjarla"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=TRUE}
+# Display all R code in the knitted HTML file.
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
+
+# Load the packages required for the exercises.
+library(tidyverse)
+library(palmerpenguins)
+```
+
+# Introduction
+
+This assignment answers Exercises 3, 4, and 6 from Section 1.2.5 of
+*R for Data Science* (2nd ed.). The exercises use the `penguins` dataset
+from the `palmerpenguins` package.
+
+# Exercise 3
+
+**Question:** Make a scatterplot of `bill_depth_mm` versus `bill_length_mm`,
+with `bill_depth_mm` on the y-axis and `bill_length_mm` on the x-axis.
+Describe the relationship between the two variables.
+
+```{r exercise-3, fig.width=8, fig.height=5.5}
+# Create a scatterplot with bill length on the x-axis and bill depth on the
+# y-axis. Color is mapped to species to make the clusters easier to interpret.
+ggplot(
+  data = penguins,
+  mapping = aes(
+    x = bill_length_mm,
+    y = bill_depth_mm,
+    color = species
+  )
+) +
+  geom_point(na.rm = TRUE) +
+  labs(
+    title = "Penguin Bill Depth versus Bill Length",
+    x = "Bill length (mm)",
+    y = "Bill depth (mm)",
+    color = "Species"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** The relationship is not represented well by one simple
+straight line because the points form clusters associated with the three
+penguin species. Gentoo penguins generally have longer but shallower bills,
+while Chinstrap penguins tend to have longer and deeper bills. Adelie penguins
+usually have shorter bills. Within the species clusters, bill depth and bill
+length tend to have a positive relationship, but the combined dataset shows
+that species is an important variable for understanding the pattern.
+
+**What we did:** We used `ggplot()` to compare two numerical variables:
+`bill_length_mm` on the x-axis and `bill_depth_mm` on the y-axis. We used
+`geom_point()` to create the scatterplot and assigned a different color to each
+species so that the groups could be compared more clearly. We also used
+`na.rm = TRUE` to exclude rows with missing bill measurements.
+
+**What we achieved:** We created a clear scatterplot that revealed three
+species-related clusters. The result showed that the relationship between bill
+length and bill depth changes among Adelie, Chinstrap, and Gentoo penguins.
+Therefore, species helps explain the pattern better than one overall trend
+line would.
+
+# Exercise 4
+
+**Question:** What happens if you make a scatterplot of `species` versus
+`bill_depth_mm`? What might be a better choice of geom?
+
+```{r exercise-4-scatterplot, fig.width=8, fig.height=5.5}
+# A point geom places observations into three vertical groups because species
+# is categorical while bill depth is numerical. Many points overlap.
+ggplot(
+  data = penguins,
+  mapping = aes(x = species, y = bill_depth_mm)
+) +
+  geom_point(na.rm = TRUE) +
+  labs(
+    title = "Bill Depth by Penguin Species: Point Plot",
+    x = "Species",
+    y = "Bill depth (mm)"
+  ) +
+  theme_minimal()
+```
+
+The point plot creates three vertical groups, one for each species. Because
+many penguins have similar bill-depth measurements, the points overlap and the
+distribution within each species is difficult to compare.
+
+```{r exercise-4-boxplot, fig.width=8, fig.height=5.5}
+# A boxplot is a better choice for comparing the distribution of a numerical
+# variable across the levels of a categorical variable.
+ggplot(
+  data = penguins,
+  mapping = aes(x = species, y = bill_depth_mm, fill = species)
+) +
+  geom_boxplot(na.rm = TRUE, show.legend = FALSE) +
+  labs(
+    title = "Distribution of Bill Depth by Penguin Species",
+    x = "Species",
+    y = "Bill depth (mm)"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** A boxplot is a better geom because it summarizes the
+median, spread, and possible outliers for each species. The graph shows that
+Gentoo penguins generally have shallower bills than Adelie and Chinstrap
+penguins. Chinstrap penguins have the highest typical bill depth, while Adelie
+penguins fall between the other two groups.
+
+**What we did:** We first plotted the categorical variable `species` against
+the numerical variable `bill_depth_mm` with `geom_point()`. Because many points
+overlapped within three vertical groups, we created a second graph with
+`geom_boxplot()` to summarize and compare the bill-depth distributions.
+
+**What we achieved:** We identified the boxplot as the more appropriate geom
+for this comparison. It made the median, spread, and possible outliers easier
+to see and showed clear differences in typical bill depth among the three
+penguin species.
+
+# Exercise 6
+
+**Question:** What does the `na.rm` argument do in `geom_point()`? What is its
+default value? Create a scatterplot that successfully uses this argument set
+to `TRUE`.
+
+The `na.rm` argument controls how missing values are handled by the geom. Its
+default value is `FALSE`. With the default, rows that contain missing values
+cannot be plotted and ggplot2 removes them while printing a warning. When
+`na.rm = TRUE`, those incomplete rows are removed silently, so the scatterplot
+is created without the missing-value warning.
+
+```{r exercise-6, fig.width=8, fig.height=5.5}
+# Remove observations with missing bill-length or bill-depth values silently
+# and create the requested scatterplot.
+ggplot(
+  data = penguins,
+  mapping = aes(x = bill_length_mm, y = bill_depth_mm)
+) +
+  geom_point(na.rm = TRUE, color = "#2C7FB8", alpha = 0.75) +
+  labs(
+    title = "Bill Measurements with Missing Values Removed",
+    subtitle = "geom_point(na.rm = TRUE)",
+    x = "Bill length (mm)",
+    y = "Bill depth (mm)"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** The scatterplot displays all observations that have both a
+bill-length value and a bill-depth value. Rows missing either measurement are
+excluded silently. Setting `na.rm = TRUE` changes the handling of the warning;
+it does not estimate or replace the missing measurements.
+
+**What we did:** We examined the purpose and default setting of the `na.rm`
+argument in `geom_point()`. We then set `na.rm = TRUE` while creating a
+scatterplot of bill length and bill depth so that observations with missing
+values would be removed without producing the usual warning.
+
+**What we achieved:** The graph was created successfully using all complete
+bill-measurement records. We also demonstrated that `na.rm = TRUE` removes
+incomplete rows silently but does not fill in, estimate, or otherwise change
+the missing values.
+
+# Conclusion
+
+These exercises demonstrate that choosing an appropriate geom depends on the
+types of variables being compared. A scatterplot is suitable for two numerical
+variables, while a boxplot is more informative for comparing a numerical
+variable across categories. They also show how `na.rm = TRUE` allows a geom to
+remove incomplete observations without displaying a warning.
+
+# Reference
+
+Wickham, H., Çetinkaya-Rundel, M., and Grolemund, G. (2023). *R for Data
+Science: Import, Tidy, Transform, Visualize, and Model Data* (2nd ed.).
+O'Reilly Media. https://r4ds.hadley.nz/data-visualize.html
