@@ -1,0 +1,317 @@
+---
+title: 'Chapter 5: R Objects'
+author: "Kalpana Renjarla"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: readable
+  word_document:
+    toc: true
+subtitle: "Hands-On Programming with R — Sections 5.1, 5.3, 5.4, 5.7, and 5.8"
+---
+
+```{r setup, include=TRUE}
+# Show all R code in the knitted document, as required by the assignment.
+knitr::opts_chunk$set(echo = TRUE, collapse = FALSE, comment = "##")
+```
+
+# Introduction
+
+This documented R Markdown program replicates and executes every line of code in Sections 5.1, 5.3, 5.4, 5.7, and 5.8 of Garrett Grolemund's *Hands-On Programming with R*. Comments explain the purpose of each operation. The selected sections do not create graphs or charts, so graph interpretation is not applicable.
+
+# Section 5.1 — Atomic Vectors
+
+Atomic vectors are one-dimensional objects whose elements all share one data type. This section demonstrates R's six atomic-vector types: double, integer, character, logical, complex, and raw.
+
+```{r atomic-vector-basics}
+# Create a numeric atomic vector representing the six faces of a die.
+die <- c(1, 2, 3, 4, 5, 6)
+
+# Display the vector.
+die
+
+# Confirm that die is a vector.
+is.vector(die)
+
+# Create and display a one-element vector.
+five <- 5
+five
+
+# Confirm its vector status and compare vector lengths.
+is.vector(five)
+length(five)
+length(die)
+
+# Create one-element integer and character vectors.
+int <- 1L
+text <- "ace"
+
+# Create multi-element integer and character vectors.
+int <- c(1L, 5L)
+text <- c("ace", "hearts")
+
+# Sum works with the integer vector.
+sum(int)
+```
+
+The next line is intentionally reproduced from the book. It demonstrates that `sum()` cannot add character strings. The chunk permits the expected error so knitting can continue.
+
+```{r expected-character-error, error=TRUE}
+# Expected error: character strings cannot be summed.
+sum(text)
+```
+
+## 5.1.1 Doubles
+
+```{r doubles}
+# Recreate the die; ordinary numeric literals are stored as doubles.
+die <- c(1, 2, 3, 4, 5, 6)
+die
+
+# Identify the atomic type.
+typeof(die)
+```
+
+## 5.1.2 Integers
+
+```{r integers}
+# The L suffix explicitly creates integer values.
+int <- c(-1L, 2L, 4L)
+int
+typeof(int)
+
+# Demonstrate a small floating-point rounding error with doubles.
+sqrt(2)^2 - 2
+```
+
+## 5.1.3 Characters
+
+```{r characters}
+# Create and inspect a character vector.
+text <- c("Hello", "World")
+text
+typeof(text)
+
+# A single quoted word is also a character vector of length one.
+typeof("Hello")
+```
+
+### Exercise 5.1 — Character or Number?
+
+**Question:** Which of `1`, `"1"`, and `"one"` are character strings, and which are numbers?
+
+**Answer:** `1` is numeric. `"1"` and `"one"` are character strings because quotation marks cause R to store their contents as character data.
+
+```{r exercise-5-1}
+# Verify the answer by inspecting each value's type.
+typeof(1)
+typeof("1")
+typeof("one")
+```
+
+## 5.1.4 Logicals
+
+```{r logicals}
+# Evaluate a comparison; 3 is not greater than 4.
+3 > 4
+
+# Create and inspect a logical vector.
+logic <- c(TRUE, FALSE, TRUE)
+logic
+typeof(logic)
+
+# F is R's shorthand for FALSE unless F has been reassigned.
+typeof(F)
+```
+
+## 5.1.5 Complex and Raw
+
+```{r complex-and-raw}
+# Create and inspect complex numbers containing imaginary components.
+comp <- c(1 + 1i, 1 + 2i, 1 + 3i)
+comp
+typeof(comp)
+
+# Create three empty raw bytes and inspect their type.
+raw(3)
+typeof(raw(3))
+```
+
+### Exercise 5.2 — Vector of Cards
+
+**Question:** Create an atomic vector that stores the face names of the five cards in a royal flush. Which vector type is appropriate?
+
+**Answer:** A character vector is appropriate because card faces are text labels.
+
+```{r exercise-5-2}
+# Store the five royal-flush face names in a character vector.
+hand <- c("ace", "king", "queen", "jack", "ten")
+hand
+
+# Confirm that the object stores character data.
+typeof(hand)
+```
+
+# Section 5.3 — Matrices
+
+Matrices arrange one atomic vector into two dimensions. Because matrices are built from atomic vectors, all cells retain the same underlying data type.
+
+```{r matrices}
+# Arrange die into two rows; R fills columns by default.
+m <- matrix(die, nrow = 2)
+m
+
+# Arrange the same values by rows instead of columns.
+m <- matrix(die, nrow = 2, byrow = TRUE)
+m
+```
+
+### Exercise 5.3 — Make a Matrix
+
+**Question:** Create a five-row, two-column matrix containing the face and suit of every card in a spade royal flush.
+
+**Answer:** The book demonstrates several equivalent constructions.
+
+```{r exercise-5-3}
+# List all faces first and all suits second.
+hand1 <- c("ace", "king", "queen", "jack", "ten", "spades", "spades",
+  "spades", "spades", "spades")
+
+# Method 1: specify five rows.
+matrix(hand1, nrow = 5)
+
+# Method 2: specify two columns.
+matrix(hand1, ncol = 2)
+
+# Method 3: directly assign the dimensions attribute.
+dim(hand1) <- c(5, 2)
+hand1
+
+# Alternatively, list each face beside its suit.
+hand2 <- c("ace", "spades", "king", "spades", "queen", "spades", "jack",
+  "spades", "ten", "spades")
+
+# Fill row by row while specifying either rows or columns.
+matrix(hand2, nrow = 5, byrow = TRUE)
+matrix(hand2, ncol = 2, byrow = TRUE)
+```
+
+# Section 5.4 — Arrays
+
+Arrays extend matrices to three or more dimensions. The example creates three 2-by-2 slices.
+
+```{r arrays}
+# Combine three number ranges and arrange them into a 2 x 2 x 3 array.
+ar <- array(c(11:14, 21:24, 31:34), dim = c(2, 2, 3))
+
+# Display all three array slices.
+ar
+```
+
+**Interpretation:** Slice 1 contains values 11–14, slice 2 contains 21–24, and slice 3 contains 31–34. R fills each slice by columns.
+
+# Section 5.7 — Lists
+
+Unlike an atomic vector, a list can group R objects of different types and lengths, including another list.
+
+```{r lists}
+# Create a list containing a numeric sequence, text, and a nested logical list.
+list1 <- list(100:130, "R", list(TRUE, FALSE))
+
+# Display the nested list structure.
+list1
+```
+
+### Exercise 5.5 — Use a List to Make a Card
+
+**Question:** Use a list to store the face, suit, and point value of the ace of hearts.
+
+**Answer:** A list preserves the face and suit as character values while keeping the point value numeric.
+
+```{r exercise-5-5}
+# Store three differently typed properties in separate list elements.
+card <- list("ace", "hearts", 1)
+card
+```
+
+# Section 5.8 — Data Frames
+
+A data frame is a two-dimensional list. Each column is a vector, columns can have different types, and all columns must have equal lengths.
+
+```{r simple-data-frame}
+# Build a three-row data frame with face, suit, and numeric value columns.
+df <- data.frame(face = c("ace", "two", "six"),
+  suit = c("clubs", "clubs", "clubs"), value = c(1, 2, 3))
+
+# Display the data frame.
+df
+
+# Demonstrate named elements in a list and vector.
+list(face = "ace", suit = "hearts", value = 1)
+c(face = "ace", suit = "hearts", value = "one")
+
+# Verify that a data frame is a list with class data.frame.
+typeof(df)
+class(df)
+
+# Display the internal structure of each column.
+str(df)
+```
+
+**Version note:** The book was written when `data.frame()` converted text columns to factors by default. Current R versions default to character columns, so `str(df)` may display `chr` instead of the factor output printed in the book. This is an expected version difference, not an error.
+
+```{r strings-as-factors-false}
+# Explicitly prevent conversion of character strings to factors.
+df <- data.frame(face = c("ace", "two", "six"),
+  suit = c("clubs", "clubs", "clubs"), value = c(1, 2, 3),
+  stringsAsFactors = FALSE)
+
+# Verify the resulting data frame and its column types.
+df
+str(df)
+```
+
+## Complete 52-Card Data Frame
+
+```{r complete-deck}
+# Construct the complete playing-card deck exactly as shown in Section 5.8.
+deck <- data.frame(
+  face = c("king", "queen", "jack", "ten", "nine", "eight", "seven", "six",
+    "five", "four", "three", "two", "ace", "king", "queen", "jack", "ten",
+    "nine", "eight", "seven", "six", "five", "four", "three", "two", "ace",
+    "king", "queen", "jack", "ten", "nine", "eight", "seven", "six", "five",
+    "four", "three", "two", "ace", "king", "queen", "jack", "ten", "nine",
+    "eight", "seven", "six", "five", "four", "three", "two", "ace"),
+  suit = c("spades", "spades", "spades", "spades", "spades", "spades",
+    "spades", "spades", "spades", "spades", "spades", "spades", "spades",
+    "clubs", "clubs", "clubs", "clubs", "clubs", "clubs", "clubs", "clubs",
+    "clubs", "clubs", "clubs", "clubs", "clubs", "diamonds", "diamonds",
+    "diamonds", "diamonds", "diamonds", "diamonds", "diamonds", "diamonds",
+    "diamonds", "diamonds", "diamonds", "diamonds", "diamonds", "hearts",
+    "hearts", "hearts", "hearts", "hearts", "hearts", "hearts", "hearts",
+    "hearts", "hearts", "hearts", "hearts", "hearts"),
+  value = c(13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 13, 12, 11, 10, 9, 8,
+    7, 6, 5, 4, 3, 2, 1, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 13, 12, 11,
+    10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+)
+
+# Verify the completed deck and its dimensions.
+deck
+dim(deck)
+str(deck)
+```
+
+**Interpretation:** The result contains 52 observations (one card per row) and three variables: `face`, `suit`, and `value`. The face and suit columns contain text, while value contains numeric point values.
+
+# Conclusion
+
+The replicated code demonstrates how R builds increasingly flexible objects: atomic vectors store one data type, matrices and arrays organize atomic data across dimensions, lists combine objects of different types, and data frames organize equal-length vectors as analysis-ready columns. All requested code from Sections 5.1, 5.3, 5.4, 5.7, and 5.8 has been documented and included.
+
+# Reference
+
+Grolemund, G. (2014). *Hands-on programming with R*. O'Reilly Media. https://rstudio-education.github.io/hopr/r-objects.html
